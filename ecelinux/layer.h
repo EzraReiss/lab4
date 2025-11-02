@@ -57,14 +57,18 @@ void initialize_padded_memory(bit input[M][I][I]) {
 template <int M, int N, int I>
 void conv(bit input[M][I][I], bit output[N][I - F + 1][I - F + 1],
           const bit8_t threshold[N], const bit weight[M][N][F][F]) {
+  #pragma HLS array_reshape variable=weight complete dim=1
+  #pragma HLS array_reshape variable=input complete dim=1
   int num_accum = F * F * M;
   for (int n = 0; n < N; n++) {
     for (int x = 0; x < I - F + 1; x++) {
       for (int y = 0; y < I - F + 1; y++) {
         bit16_t accum = 0;
+
         for (int c = 0; c < F; c++) {
-          for (int r = 0; r < F; r++) {
+          for (int r = 0; r < F; r++) { //reorder this pragma so the access pattern is column based?
             for (int m = 0; m < M; m++) {
+              #pragma HLS unroll
               accum += input[m][y + r][x + c] == weight[m][n][r][c];
             }
           }

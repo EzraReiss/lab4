@@ -45,13 +45,27 @@ void dut(hls::stream<bit32_t> &strm_in, hls::stream<bit32_t> &strm_out) {
 
 bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
   bit input_padded[I_CHANNEL1][I_WIDTH1 + F_PAD][I_WIDTH1 + F_PAD];
-  initialize_padded_memory<I_CHANNEL1, I_WIDTH1 + F_PAD, 1>(input_padded);
+
+  initialize_padded_memory<
+    I_CHANNEL1,               // M
+    I_WIDTH1 + F_PAD,         // I
+    1                         // C
+  >(
+    input_padded              // input[M][I][I]
+  );
+  
   bit conv1[O_CHANNEL1][I_WIDTH1][I_WIDTH1];
   bit conv1_pooled[O_CHANNEL1][I_WIDTH2][I_WIDTH2];
   bit conv1_pooled_padded[O_CHANNEL1][I_WIDTH2 + F_PAD][I_WIDTH2 + F_PAD];
 
-  initialize_padded_memory<O_CHANNEL1, I_WIDTH2 + F_PAD, 0>(
-      conv1_pooled_padded);
+  initialize_padded_memory<
+    O_CHANNEL1,               // M
+    I_WIDTH2 + F_PAD,         // I
+    0                         // C
+  >(
+    conv1_pooled_padded       // input[M][I][I]
+  );
+
   bit conv2[O_CHANNEL2][I_WIDTH2][I_WIDTH2];
   bit conv2_pooled[O_CHANNEL2][O_WIDTH][O_WIDTH];
 
@@ -62,23 +76,92 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
   bit32_t output;
 
   /* First Conv Layer */
-  pad<I_CHANNEL1, I_WIDTH1>(input, input_padded);
-  conv<I_CHANNEL1, O_CHANNEL1, I_WIDTH1 + F_PAD>(input_padded, conv1,
-                                                 threshold_conv1, w_conv1);
-  max_pool<O_CHANNEL1, I_WIDTH1>(conv1, conv1_pooled);
+  pad<
+    I_CHANNEL1,               // M
+    I_WIDTH1                  // I
+  >(
+    input,                    // input[M][I][I]
+    input_padded              // output[M][I+F_PAD][I+F_PAD]  (see model.h)
+  );
+  
+  conv<
+    I_CHANNEL1,               // M
+    O_CHANNEL1,               // N
+    I_WIDTH1 + F_PAD          // I
+  >(
+    input_padded,             // input[M][I][I]
+    conv1,                    // output[N][I - F + 1][I - F + 1]
+    threshold_conv1,          // threshold[N] 
+    w_conv1                   // weights[M][N][F][F]
+  );
+
+  max_pool<
+    O_CHANNEL1,               // M
+    I_WIDTH1                  // I 
+  >(
+    conv1,                    // input[M][I][I]
+    conv1_pooled              // output[M][I/2][I/2]
+  );
 
   /* Second Conv Layer */
-  pad<O_CHANNEL1, I_WIDTH2>(conv1_pooled, conv1_pooled_padded);
-  conv<O_CHANNEL1, O_CHANNEL2, I_WIDTH2 + F_PAD>(conv1_pooled_padded, conv2,
-                                                 threshold_conv2, w_conv2);
-  max_pool<O_CHANNEL2, I_WIDTH2>(conv2, conv2_pooled);
+  pad<
+    O_CHANNEL1,               // M
+    I_WIDTH2                  // I
+  >(
+    conv1_pooled,             // input[M][I][I]
+    conv1_pooled_padded       // output[M][I+F_PAD][I+F_PAD]
+  );
 
-  flatten(conv2_pooled, reshaped);
+  conv<
+    O_CHANNEL1,               // M
+    O_CHANNEL2,               // N
+    I_WIDTH2 + F_PAD          // I
+  >(
+    conv1_pooled_padded,      // input[M][I][I]
+    conv2,                    // output[N][I - F + 1][I - F + 1] 
+    threshold_conv2,          // threshold[N]
+    w_conv2                   // weights[M][N][F][F] 
+  );
+  
+  max_pool<
+    O_CHANNEL2,               // M
+    I_WIDTH2                  // I
+  >(
+    conv2,                    // input[M][I][I]
+    conv2_pooled              // output[M][I/2][I/2]
+  );
+
+  flatten(
+    conv2_pooled,             // input[O_CHANNEL2][O_WIDTH][O_WIDTH]
+    reshaped                  // output[I_UNITS1]
+  );
 
   /* Dense Layers */
-  dense<I_UNITS1, I_UNITS2>(reshaped, dense1, w_fc1);
-  sign<I_UNITS2>(dense1, signed1);
-  dense<I_UNITS2, NUM_DIGITS>(signed1, dense2, w_fc2);
+  dense<
+    I_UNITS1,                 // M
+    I_UNITS2                  // N
+  >(
+    reshaped,                 // input[M]
+    dense1,                   // output[N]
+    w_fc1                     // weights[M][N]
+  );
+  
+  sign<
+    I_UNITS2                  // M
+  >(
+    dense1,                   // input[M] 
+    signed1                   // output[M]  
+  );
+  
+  dense<
+    I_UNITS2,                 // M  
+    NUM_DIGITS                // N 
+  >(
+    signed1,                  // input[M]
+    dense2,                   // output[N]
+    w_fc2                     // weights[M][N]
+  );
+  
   output = argmax(dense2);
 
   return output;
