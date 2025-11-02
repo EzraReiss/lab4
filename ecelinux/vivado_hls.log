@@ -7,7 +7,7 @@
 source /opt/xilinx/Vivado/2019.2/scripts/vivado_hls/hls.tcl -notrace
 INFO: Applying HLS Y2K22 patch v1.2 for IP revision
 INFO: [HLS 200-10] Running '/opt/xilinx/Vivado/2019.2/bin/unwrapped/lnx64.o/vivado_hls'
-INFO: [HLS 200-10] For user 'er495' on host 'en-ec-rhel-ecelinux-14.coecis.cornell.edu' (Linux_x86_64 version 4.18.0-553.77.1.el8_10.x86_64) on Sun Nov 02 17:26:13 EST 2025
+INFO: [HLS 200-10] For user 'er495' on host 'en-ec-rhel-ecelinux-14.coecis.cornell.edu' (Linux_x86_64 version 4.18.0-553.77.1.el8_10.x86_64) on Sun Nov 02 18:16:01 EST 2025
 INFO: [HLS 200-10] On os "Red Hat Enterprise Linux release 8.10 (Ootpa)"
 INFO: [HLS 200-10] In directory '/home/er495/ece6775/lab4/ecelinux'
 Sourcing Tcl script 'run.tcl'
@@ -15,7 +15,7 @@ INFO: [HLS 200-10] Opening and resetting project '/home/er495/ece6775/lab4/eceli
 INFO: [HLS 200-10] Adding design file 'bnn.cpp' to the project
 INFO: [HLS 200-10] Adding test bench file 'bnn_test.cpp' to the project
 INFO: [HLS 200-10] Adding test bench file 'data' to the project
-INFO: [HLS 200-10] Creating and opening solution '/home/er495/ece6775/lab4/ecelinux/bnn.prj/solution1-no-optimizations'.
+INFO: [HLS 200-10] Creating and opening solution '/home/er495/ece6775/lab4/ecelinux/bnn.prj/solution1-conv-optimizations-reshape-unroll'.
 INFO: [HLS 200-10] Cleaning up the solution database.
 INFO: [HLS 200-10] Setting target device to 'xc7z020-clg484-1'
 INFO: [SYN 201-201] Setting up clock 'default' with a period of 10ns.
@@ -26,15 +26,16 @@ INFO: [SIM 211-4] CSIM will launch GCC as the compiler.
    Generating csim.exe
 Accuracy: 0.9
 Testing performance over 2000 images.
-digirec BNN         :      1 calls; 22812.949 msecs total time
+digirec BNN         :      1 calls; 22757.072 msecs total time
 INFO: [SIM 211-1] CSim done with 0 errors.
 INFO: [SIM 211-3] *************** CSIM finish ***************
 INFO: [SCHED 204-61] Option 'relax_ii_for_timing' is enabled, will increase II to preserve clock frequency constraints.
 INFO: [HLS 200-10] Analyzing design file 'bnn.cpp' ... 
-INFO: [HLS 200-111] Finished Linking Time (s): cpu = 00:00:37 ; elapsed = 00:00:39 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 3456 ; free virtual = 20192
-INFO: [HLS 200-111] Finished Checking Pragmas Time (s): cpu = 00:00:37 ; elapsed = 00:00:39 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 3456 ; free virtual = 20192
+INFO: [HLS 200-111] Finished Linking Time (s): cpu = 00:00:37 ; elapsed = 00:00:39 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 5823 ; free virtual = 22172
+INFO: [HLS 200-111] Finished Checking Pragmas Time (s): cpu = 00:00:37 ; elapsed = 00:00:39 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 5823 ; free virtual = 22172
 INFO: [HLS 200-10] Starting code transformations ...
-INFO: [HLS 200-111] Finished Standard Transforms Time (s): cpu = 00:00:39 ; elapsed = 00:00:41 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 3405 ; free virtual = 20143
+INFO: [HLS 200-489] Unrolling loop 'Loop-1.1.1.1.1.1' (./layer.h:79) in function 'void conv<1, 16, 18>(bool (*) [FORWARD_REFERENCE][FORWARD_REFERENCE], bool (*) [((FORWARD_REFERENCE) - (F)) + (1)][((FORWARD_REFERENCE) - (F)) + (1)], ap_int<8> const*, bool const (*) [FORWARD_REFERENCE][3][3])' completely with a factor of 1.
+INFO: [HLS 200-111] Finished Standard Transforms Time (s): cpu = 00:00:40 ; elapsed = 00:00:42 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 5773 ; free virtual = 22125
 INFO: [HLS 200-10] Checking synthesizability ...
 INFO: [XFORM 203-602] Inlining function 'dense<512, 256>' into 'bnn_xcel' (bnn.cpp:140) automatically.
 INFO: [XFORM 203-602] Inlining function 'sign<256>' into 'bnn_xcel' (bnn.cpp:149) automatically.
@@ -42,38 +43,40 @@ INFO: [XFORM 203-602] Inlining function 'dense<256, 10>' into 'bnn_xcel' (bnn.cp
 INFO: [XFORM 203-602] Inlining function 'argmax' into 'bnn_xcel' (bnn.cpp:165) automatically.
 WARNING: [SYNCHK 200-23] bnn.cpp:29: variable-indexed range selection may cause suboptimal QoR.
 INFO: [SYNCHK 200-10] 0 error(s), 1 warning(s).
-INFO: [HLS 200-111] Finished Checking Synthesizability Time (s): cpu = 00:00:41 ; elapsed = 00:00:43 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 3402 ; free virtual = 20141
-INFO: [XFORM 203-502] Unrolling small iteration loop 'Loop-1.1.1.1.1.1' (./layer.h:71) in function 'conv<1, 16, 18>' automatically.
-INFO: [XFORM 203-502] Unrolling small iteration loop 'Loop-1' (./layer.h:21) in function 'pad<1, 16>' automatically.
-INFO: [XFORM 203-502] Unrolling small iteration loop 'Loop-1' (./layer.h:37) in function 'initialize_padded_memory<1, 18, 1>' automatically.
-INFO: [HLS 200-489] Unrolling loop 'Loop-1.1.1.1.1.1' (./layer.h:71) in function 'conv<1, 16, 18>' completely with a factor of 1.
-INFO: [HLS 200-489] Unrolling loop 'Loop-1' (./layer.h:21) in function 'pad<1, 16>' completely with a factor of 1.
-INFO: [HLS 200-489] Unrolling loop 'Loop-1' (./layer.h:37) in function 'initialize_padded_memory<1, 18, 1>' completely with a factor of 1.
-INFO: [XFORM 203-102] Partitioning array 'input_padded' (bnn.cpp:47) in dimension 1 automatically.
+INFO: [HLS 200-111] Finished Checking Synthesizability Time (s): cpu = 00:00:43 ; elapsed = 00:00:46 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 5762 ; free virtual = 22115
+INFO: [XFORM 203-502] Unrolling small iteration loop 'Loop-1' (./layer.h:24) in function 'pad<1, 16>' automatically.
+INFO: [XFORM 203-502] Unrolling small iteration loop 'Loop-1' (./layer.h:42) in function 'initialize_padded_memory<1, 18, 1>' automatically.
+INFO: [HLS 200-489] Unrolling loop 'Loop-1.1.1.1.1.1' (./layer.h:79) in function 'conv<16, 32, 10>' completely with a factor of 16.
+INFO: [HLS 200-489] Unrolling loop 'Loop-1' (./layer.h:24) in function 'pad<1, 16>' completely with a factor of 1.
+INFO: [HLS 200-489] Unrolling loop 'Loop-1' (./layer.h:42) in function 'initialize_padded_memory<1, 18, 1>' completely with a factor of 1.
 INFO: [XFORM 203-102] Partitioning array 'input' (bnn.cpp:20) in dimension 1 automatically.
-INFO: [XFORM 203-102] Partitioning array 'w_conv1' in dimension 1 automatically.
-INFO: [XFORM 203-602] Inlining function 'initialize_padded_memory<1, 18, 1>' into 'bnn_xcel' (bnn.cpp:49) automatically.
-INFO: [XFORM 203-602] Inlining function 'pad<1, 16>' into 'bnn_xcel' (bnn.cpp:79) automatically.
+INFO: [XFORM 203-131] Reshaping array 'conv1_pooled_padded' (bnn.cpp:59) in dimension 1 completely.
+INFO: [XFORM 203-131] Reshaping array 'w_conv2'  in dimension 1 completely.
+INFO: [XFORM 203-131] Reshaping array 'input_padded' (bnn.cpp:47) in dimension 1 completely.
+INFO: [XFORM 203-131] Reshaping array 'w_conv1'  in dimension 1 completely.
+INFO: [XFORM 203-602] Inlining function 'initialize_padded_memory<1, 18, 1>' into 'bnn_xcel' automatically.
+INFO: [XFORM 203-602] Inlining function 'pad<1, 16>' into 'bnn_xcel' automatically.
 INFO: [XFORM 203-602] Inlining function 'dense<512, 256>' into 'bnn_xcel' (bnn.cpp:140) automatically.
 INFO: [XFORM 203-602] Inlining function 'sign<256>' into 'bnn_xcel' (bnn.cpp:149) automatically.
 INFO: [XFORM 203-602] Inlining function 'dense<256, 10>' into 'bnn_xcel' (bnn.cpp:156) automatically.
 INFO: [XFORM 203-602] Inlining function 'argmax' into 'bnn_xcel' (bnn.cpp:165) automatically.
-INFO: [HLS 200-111] Finished Pre-synthesis Time (s): cpu = 00:00:43 ; elapsed = 00:00:46 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 3389 ; free virtual = 20130
-WARNING: [XFORM 203-631] Renaming function 'initialize_padded_memory<16, 10, 0>' to 'initialize_padded_me' (./layer.h:37:30)
-INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:24:9)
-INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:103:9)
-INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:103:9)
-INFO: [HLS 200-472] Inferring partial write operation for 'input' (./layer.h:40:9)
-INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:120:9)
+INFO: [XFORM 203-11] Balancing expressions in function 'conv<16, 32, 10>' (./layer.h:63)...16 expression(s) balanced.
+INFO: [HLS 200-111] Finished Pre-synthesis Time (s): cpu = 00:00:47 ; elapsed = 00:00:50 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 5758 ; free virtual = 22113
+WARNING: [XFORM 203-631] Renaming function 'initialize_padded_memory<16, 10, 0>' to 'initialize_padded_me' (./layer.h:42:30)
+INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:27:9)
+INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:115:9)
+INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:115:9)
+INFO: [HLS 200-472] Inferring partial write operation for 'input' (./layer.h:45:9)
+INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:135:9)
 INFO: [HLS 200-472] Inferring partial write operation for 'input[0]' (bnn.cpp:29:60)
-INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:78:27)
-INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:78:27)
-INFO: [HLS 200-472] Inferring partial write operation for 'input_padded[0]' (./layer.h:40:9)
-INFO: [HLS 200-472] Inferring partial write operation for 'input_padded[0]' (./layer.h:24:9)
-INFO: [HLS 200-472] Inferring partial write operation for 'dense1.V' (./layer.h:173:18)
-INFO: [HLS 200-472] Inferring partial write operation for 'signed1' (./layer.h:135:18)
-INFO: [HLS 200-472] Inferring partial write operation for 'dense2.V' (./layer.h:173:18)
-INFO: [HLS 200-111] Finished Architecture Synthesis Time (s): cpu = 00:00:48 ; elapsed = 00:00:50 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 3321 ; free virtual = 20062
+INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:87:27)
+INFO: [HLS 200-472] Inferring partial write operation for 'output' (./layer.h:87:27)
+INFO: [HLS 200-472] Inferring partial write operation for 'input_padded' (./layer.h:45:9)
+INFO: [HLS 200-472] Inferring partial write operation for 'input_padded' (./layer.h:27:9)
+INFO: [HLS 200-472] Inferring partial write operation for 'dense1.V' (./layer.h:197:18)
+INFO: [HLS 200-472] Inferring partial write operation for 'signed1' (./layer.h:153:18)
+INFO: [HLS 200-472] Inferring partial write operation for 'dense2.V' (./layer.h:197:18)
+INFO: [HLS 200-111] Finished Architecture Synthesis Time (s): cpu = 00:00:51 ; elapsed = 00:00:53 . Memory (MB): peak = 1168.148 ; gain = 530.125 ; free physical = 5692 ; free virtual = 22047
 INFO: [HLS 200-10] Starting hardware synthesis ...
 INFO: [HLS 200-10] Synthesizing 'dut' ...
 WARNING: [SYN 201-103] Legalizing function name 'conv<1, 16, 18>' to 'conv_1_16_18_s'.
@@ -86,157 +89,157 @@ INFO: [HLS 200-42] -- Implementing module 'initialize_padded_me'
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [SCHED 204-11] Starting scheduling ...
 INFO: [SCHED 204-11] Finished scheduling.
-INFO: [HLS 200-111]  Elapsed time: 50.52 seconds; current allocated memory: 232.137 MB.
+INFO: [HLS 200-111]  Elapsed time: 53.23 seconds; current allocated memory: 232.206 MB.
 INFO: [BIND 205-100] Starting micro-architecture generation ...
 INFO: [BIND 205-101] Performing variable lifetime analysis.
 INFO: [BIND 205-101] Exploring resource sharing.
 INFO: [BIND 205-101] Binding ...
 INFO: [BIND 205-100] Finished micro-architecture generation.
-INFO: [HLS 200-111]  Elapsed time: 0.04 seconds; current allocated memory: 232.303 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.04 seconds; current allocated memory: 232.353 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-42] -- Implementing module 'conv_1_16_18_s' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [SCHED 204-11] Starting scheduling ...
 INFO: [SCHED 204-11] Finished scheduling.
-INFO: [HLS 200-111]  Elapsed time: 0.07 seconds; current allocated memory: 232.620 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.06 seconds; current allocated memory: 232.631 MB.
 INFO: [BIND 205-100] Starting micro-architecture generation ...
 INFO: [BIND 205-101] Performing variable lifetime analysis.
 INFO: [BIND 205-101] Exploring resource sharing.
 INFO: [BIND 205-101] Binding ...
 INFO: [BIND 205-100] Finished micro-architecture generation.
-INFO: [HLS 200-111]  Elapsed time: 0.08 seconds; current allocated memory: 232.929 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.08 seconds; current allocated memory: 232.979 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-42] -- Implementing module 'max_pool_16_16_s' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [SCHED 204-11] Starting scheduling ...
 INFO: [SCHED 204-11] Finished scheduling.
-INFO: [HLS 200-111]  Elapsed time: 0.1 seconds; current allocated memory: 233.113 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.1 seconds; current allocated memory: 233.158 MB.
 INFO: [BIND 205-100] Starting micro-architecture generation ...
 INFO: [BIND 205-101] Performing variable lifetime analysis.
 INFO: [BIND 205-101] Exploring resource sharing.
 INFO: [BIND 205-101] Binding ...
 INFO: [BIND 205-100] Finished micro-architecture generation.
-INFO: [HLS 200-111]  Elapsed time: 0.07 seconds; current allocated memory: 233.338 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.06 seconds; current allocated memory: 233.385 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-42] -- Implementing module 'pad_16_8_s' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [SCHED 204-11] Starting scheduling ...
 INFO: [SCHED 204-11] Finished scheduling.
-INFO: [HLS 200-111]  Elapsed time: 0.08 seconds; current allocated memory: 233.541 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.07 seconds; current allocated memory: 233.575 MB.
 INFO: [BIND 205-100] Starting micro-architecture generation ...
 INFO: [BIND 205-101] Performing variable lifetime analysis.
 INFO: [BIND 205-101] Exploring resource sharing.
 INFO: [BIND 205-101] Binding ...
 INFO: [BIND 205-100] Finished micro-architecture generation.
-INFO: [HLS 200-111]  Elapsed time: 0.05 seconds; current allocated memory: 233.714 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.04 seconds; current allocated memory: 233.744 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-42] -- Implementing module 'conv_16_32_10_s' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [SCHED 204-11] Starting scheduling ...
 INFO: [SCHED 204-11] Finished scheduling.
-INFO: [HLS 200-111]  Elapsed time: 0.09 seconds; current allocated memory: 233.991 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.09 seconds; current allocated memory: 234.261 MB.
 INFO: [BIND 205-100] Starting micro-architecture generation ...
 INFO: [BIND 205-101] Performing variable lifetime analysis.
 INFO: [BIND 205-101] Exploring resource sharing.
 INFO: [BIND 205-101] Binding ...
 INFO: [BIND 205-100] Finished micro-architecture generation.
-INFO: [HLS 200-111]  Elapsed time: 0.1 seconds; current allocated memory: 234.379 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.15 seconds; current allocated memory: 234.947 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-42] -- Implementing module 'max_pool_32_8_s' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [SCHED 204-11] Starting scheduling ...
 INFO: [SCHED 204-11] Finished scheduling.
-INFO: [HLS 200-111]  Elapsed time: 0.13 seconds; current allocated memory: 234.591 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.18 seconds; current allocated memory: 235.191 MB.
 INFO: [BIND 205-100] Starting micro-architecture generation ...
 INFO: [BIND 205-101] Performing variable lifetime analysis.
 INFO: [BIND 205-101] Exploring resource sharing.
 INFO: [BIND 205-101] Binding ...
 INFO: [BIND 205-100] Finished micro-architecture generation.
-INFO: [HLS 200-111]  Elapsed time: 0.06 seconds; current allocated memory: 234.813 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.06 seconds; current allocated memory: 235.416 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-42] -- Implementing module 'flatten' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [SCHED 204-11] Starting scheduling ...
 INFO: [SCHED 204-11] Finished scheduling.
-INFO: [HLS 200-111]  Elapsed time: 0.08 seconds; current allocated memory: 234.944 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.08 seconds; current allocated memory: 235.557 MB.
 INFO: [BIND 205-100] Starting micro-architecture generation ...
 INFO: [BIND 205-101] Performing variable lifetime analysis.
 INFO: [BIND 205-101] Exploring resource sharing.
 INFO: [BIND 205-101] Binding ...
 INFO: [BIND 205-100] Finished micro-architecture generation.
-INFO: [HLS 200-111]  Elapsed time: 0.05 seconds; current allocated memory: 235.106 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.04 seconds; current allocated memory: 235.722 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-42] -- Implementing module 'bnn_xcel' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [SCHED 204-11] Starting scheduling ...
 INFO: [SCHED 204-11] Finished scheduling.
-INFO: [HLS 200-111]  Elapsed time: 0.1 seconds; current allocated memory: 235.633 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.09 seconds; current allocated memory: 236.234 MB.
 INFO: [BIND 205-100] Starting micro-architecture generation ...
 INFO: [BIND 205-101] Performing variable lifetime analysis.
 INFO: [BIND 205-101] Exploring resource sharing.
 INFO: [BIND 205-101] Binding ...
 INFO: [BIND 205-100] Finished micro-architecture generation.
-INFO: [HLS 200-111]  Elapsed time: 0.32 seconds; current allocated memory: 236.436 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.35 seconds; current allocated memory: 237.103 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-42] -- Implementing module 'dut' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [SCHED 204-11] Starting scheduling ...
 INFO: [SCHED 204-11] Finished scheduling.
-INFO: [HLS 200-111]  Elapsed time: 0.28 seconds; current allocated memory: 236.809 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.3 seconds; current allocated memory: 237.498 MB.
 INFO: [BIND 205-100] Starting micro-architecture generation ...
 INFO: [BIND 205-101] Performing variable lifetime analysis.
 INFO: [BIND 205-101] Exploring resource sharing.
 INFO: [BIND 205-101] Binding ...
 INFO: [BIND 205-100] Finished micro-architecture generation.
-INFO: [HLS 200-111]  Elapsed time: 0.12 seconds; current allocated memory: 237.010 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.1 seconds; current allocated memory: 237.700 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-10] -- Generating RTL for module 'initialize_padded_me' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [RTGEN 206-100] Finished creating RTL model for 'initialize_padded_me'.
-INFO: [HLS 200-111]  Elapsed time: 0.19 seconds; current allocated memory: 237.419 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.2 seconds; current allocated memory: 238.157 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-10] -- Generating RTL for module 'conv_1_16_18_s' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [SYN 201-210] Renamed object name 'conv_1_16_18_s_threshold_conv1_V' to 'conv_1_16_18_s_thbkb' due to the length limit 20
-INFO: [SYN 201-210] Renamed object name 'conv_1_16_18_s_w_conv1_0' to 'conv_1_16_18_s_w_cud' due to the length limit 20
+INFO: [SYN 201-210] Renamed object name 'conv_1_16_18_s_w_conv1' to 'conv_1_16_18_s_w_cud' due to the length limit 20
 INFO: [RTGEN 206-100] Finished creating RTL model for 'conv_1_16_18_s'.
-INFO: [HLS 200-111]  Elapsed time: 0.1 seconds; current allocated memory: 238.625 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.08 seconds; current allocated memory: 239.352 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-10] -- Generating RTL for module 'max_pool_16_16_s' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [RTGEN 206-100] Finished creating RTL model for 'max_pool_16_16_s'.
-INFO: [HLS 200-111]  Elapsed time: 0.17 seconds; current allocated memory: 240.369 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.16 seconds; current allocated memory: 241.085 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-10] -- Generating RTL for module 'pad_16_8_s' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [RTGEN 206-100] Finished creating RTL model for 'pad_16_8_s'.
-INFO: [HLS 200-111]  Elapsed time: 0.13 seconds; current allocated memory: 241.625 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.12 seconds; current allocated memory: 242.402 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-10] -- Generating RTL for module 'conv_16_32_10_s' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [SYN 201-210] Renamed object name 'conv_16_32_10_s_threshold_conv2_V' to 'conv_16_32_10_s_tdEe' due to the length limit 20
 INFO: [SYN 201-210] Renamed object name 'conv_16_32_10_s_w_conv2' to 'conv_16_32_10_s_weOg' due to the length limit 20
 INFO: [RTGEN 206-100] Finished creating RTL model for 'conv_16_32_10_s'.
-INFO: [HLS 200-111]  Elapsed time: 0.13 seconds; current allocated memory: 243.042 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.12 seconds; current allocated memory: 244.204 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-10] -- Generating RTL for module 'max_pool_32_8_s' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [RTGEN 206-100] Finished creating RTL model for 'max_pool_32_8_s'.
-INFO: [HLS 200-111]  Elapsed time: 0.2 seconds; current allocated memory: 245.078 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.33 seconds; current allocated memory: 247.484 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-10] -- Generating RTL for module 'flatten' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [RTGEN 206-100] Finished creating RTL model for 'flatten'.
-INFO: [HLS 200-111]  Elapsed time: 0.14 seconds; current allocated memory: 246.344 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.15 seconds; current allocated memory: 248.758 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-10] -- Generating RTL for module 'bnn_xcel' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
-INFO: [SYN 201-210] Renamed object name 'bnn_xcel_input_padded_0' to 'bnn_xcel_input_pafYi' due to the length limit 20
+INFO: [SYN 201-210] Renamed object name 'bnn_xcel_input_padded' to 'bnn_xcel_input_pafYi' due to the length limit 20
 INFO: [SYN 201-210] Renamed object name 'bnn_xcel_conv1_pooled' to 'bnn_xcel_conv1_pog8j' due to the length limit 20
 INFO: [SYN 201-210] Renamed object name 'bnn_xcel_conv1_pooled_padded' to 'bnn_xcel_conv1_pohbi' due to the length limit 20
 INFO: [SYN 201-210] Renamed object name 'bnn_xcel_conv2_pooled' to 'bnn_xcel_conv2_poibs' due to the length limit 20
 INFO: [RTGEN 206-100] Finished creating RTL model for 'bnn_xcel'.
-INFO: [HLS 200-111]  Elapsed time: 0.2 seconds; current allocated memory: 248.505 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.2 seconds; current allocated memory: 250.872 MB.
 INFO: [HLS 200-10] ----------------------------------------------------------------
 INFO: [HLS 200-10] -- Generating RTL for module 'dut' 
 INFO: [HLS 200-10] ----------------------------------------------------------------
@@ -244,9 +247,9 @@ INFO: [RTGEN 206-500] Setting interface mode on port 'dut/strm_in_V_V' to 'ap_fi
 INFO: [RTGEN 206-500] Setting interface mode on port 'dut/strm_out_V_V' to 'ap_fifo'.
 INFO: [RTGEN 206-500] Setting interface mode on function 'dut' to 'ap_ctrl_hs'.
 INFO: [RTGEN 206-100] Finished creating RTL model for 'dut'.
-INFO: [HLS 200-111]  Elapsed time: 0.46 seconds; current allocated memory: 251.925 MB.
+INFO: [HLS 200-111]  Elapsed time: 0.45 seconds; current allocated memory: 254.324 MB.
 INFO: [HLS 200-790] **** Loop Constraint Status: All loop constraints were satisfied.
-INFO: [HLS 200-789] **** Estimated Fmax: 127.32 MHz
+INFO: [HLS 200-789] **** Estimated Fmax: 115.50 MHz
 INFO: [RTMG 210-279] Implementing memory 'conv_1_16_18_s_thbkb_rom' using distributed ROMs.
 INFO: [RTMG 210-279] Implementing memory 'conv_1_16_18_s_w_cud_rom' using distributed ROMs.
 INFO: [RTMG 210-279] Implementing memory 'conv_16_32_10_s_tdEe_rom' using distributed ROMs.
@@ -262,8 +265,8 @@ INFO: [RTMG 210-278] Implementing memory 'bnn_xcel_conv2_poibs_ram (RAM)' using 
 INFO: [RTMG 210-278] Implementing memory 'bnn_xcel_dense1_V_ram (RAM)' using block RAMs.
 INFO: [RTMG 210-278] Implementing memory 'bnn_xcel_signed1_ram (RAM)' using distributed RAMs.
 INFO: [RTMG 210-278] Implementing memory 'bnn_xcel_dense2_V_ram (RAM)' using distributed RAMs.
-INFO: [HLS 200-111] Finished generating all RTL models Time (s): cpu = 00:00:54 ; elapsed = 00:00:59 . Memory (MB): peak = 1296.148 ; gain = 658.125 ; free physical = 3360 ; free virtual = 20120
+INFO: [HLS 200-111] Finished generating all RTL models Time (s): cpu = 00:00:56 ; elapsed = 00:01:01 . Memory (MB): peak = 1296.148 ; gain = 658.125 ; free physical = 5630 ; free virtual = 22004
 INFO: [VHDL 208-304] Generating VHDL RTL for dut.
 INFO: [VLOG 209-307] Generating Verilog RTL for dut.
-INFO: [HLS 200-112] Total elapsed time: 58.75 seconds; peak allocated memory: 251.925 MB.
-INFO: [Common 17-206] Exiting vivado_hls at Sun Nov  2 17:27:12 2025...
+INFO: [HLS 200-112] Total elapsed time: 61.09 seconds; peak allocated memory: 254.324 MB.
+INFO: [Common 17-206] Exiting vivado_hls at Sun Nov  2 18:17:02 2025...
