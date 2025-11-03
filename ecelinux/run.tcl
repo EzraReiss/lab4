@@ -17,7 +17,7 @@ add_files bnn.cpp -cflags "-std=c++11"
 add_files -tb bnn_test.cpp -cflags "-std=c++11"
 add_files -tb data
 
-open_solution "solution1-conv-v2-dense-reshape"
+open_solution "solution1-linebuffer-1"
 # Use Zynq device
 set_part {xc7z020clg484-1}
 
