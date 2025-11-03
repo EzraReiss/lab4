@@ -46,6 +46,7 @@ void dut(hls::stream<bit32_t> &strm_in, hls::stream<bit32_t> &strm_out) {
 bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
   bit input_padded[I_CHANNEL1][I_WIDTH1 + F_PAD][I_WIDTH1 + F_PAD];
 
+  // INFO: [HLS 200-42] -- Implementing module 'initialize_padded_me_1'
   initialize_padded_memory<
     I_CHANNEL1,               // M
     I_WIDTH1 + F_PAD,         // I
@@ -58,6 +59,7 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
   bit conv1_pooled[O_CHANNEL1][I_WIDTH2][I_WIDTH2];
   bit conv1_pooled_padded[O_CHANNEL1][I_WIDTH2 + F_PAD][I_WIDTH2 + F_PAD];
 
+  // INFO: [HLS 200-42] -- Implementing module 'initialize_padded_me'
   initialize_padded_memory<
     O_CHANNEL1,               // M
     I_WIDTH2 + F_PAD,         // I
@@ -76,6 +78,7 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
   bit32_t output;
 
   /* First Conv Layer */
+  // INFO: [HLS 200-42] -- Implementing module 'pad_1_16_s'
   pad<
     I_CHANNEL1,               // M
     I_WIDTH1                  // I
@@ -84,6 +87,7 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
     input_padded              // output[M][I+F_PAD][I+F_PAD]  (see model.h)
   );
   
+  // INFO: [HLS 200-42] -- Implementing module 'conv_1_16_18_s'
   conv<
     I_CHANNEL1,               // M
     O_CHANNEL1,               // N
@@ -95,6 +99,7 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
     w_conv1                   // weights[M][N][F][F]
   );
 
+  // INFO: [HLS 200-42] -- Implementing module 'max_pool_16_16_s' 
   max_pool<
     O_CHANNEL1,               // M
     I_WIDTH1                  // I 
@@ -104,6 +109,7 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
   );
 
   /* Second Conv Layer */
+  // INFO: [HLS 200-42] -- Implementing module 'pad_16_8_s' 
   pad<
     O_CHANNEL1,               // M
     I_WIDTH2                  // I
@@ -112,6 +118,7 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
     conv1_pooled_padded       // output[M][I+F_PAD][I+F_PAD]
   );
 
+  // INFO: [HLS 200-42] -- Implementing module 'conv_16_32_10_s'
   conv<
     O_CHANNEL1,               // M
     O_CHANNEL2,               // N
@@ -122,7 +129,8 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
     threshold_conv2,          // threshold[N]
     w_conv2                   // weights[M][N][F][F] 
   );
-  
+
+  // INFO: [HLS 200-10] -- Generating RTL for module 'max_pool_32_8_s'
   max_pool<
     O_CHANNEL2,               // M
     I_WIDTH2                  // I
@@ -131,12 +139,14 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
     conv2_pooled              // output[M][I/2][I/2]
   );
 
+  // INFO: [HLS 200-10] -- Generating RTL for module 'flatten'
   flatten(
     conv2_pooled,             // input[O_CHANNEL2][O_WIDTH][O_WIDTH]
     reshaped                  // output[I_UNITS1]
   );
 
   /* Dense Layers */
+  // INFO: [HLS 200-10] -- Generating RTL for module 'dense_512_256_s'
   dense<
     I_UNITS1,                 // M
     I_UNITS2                  // N
@@ -145,14 +155,16 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
     dense1,                   // output[N]
     w_fc1                     // weights[M][N]
   );
-  
+
+  // INFO: [HLS 200-10] -- Generating RTL for module 'sign_256_s'
   sign<
     I_UNITS2                  // M
   >(
     dense1,                   // input[M] 
     signed1                   // output[M]  
   );
-  
+
+  // INFO: [HLS 200-10] -- Generating RTL for module 'dense_256_10_s'
   dense<
     I_UNITS2,                 // M  
     NUM_DIGITS                // N 
@@ -161,7 +173,8 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
     dense2,                   // output[N]
     w_fc2                     // weights[M][N]
   );
-  
+
+  // INFO: [HLS 200-10] -- Generating RTL for module 'argmax'
   output = argmax(dense2);
 
   return output;

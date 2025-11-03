@@ -45,6 +45,31 @@ void initialize_padded_memory(bit input[M][I][I]) {
   }
 }
 
+template <
+  typename T,
+  int M
+> 
+void initialize_line_buffer(
+  T line_buffer[M],
+  T initial_values[M]
+) {
+  for (int m = 0; m < M; m++) {
+    line_buffer[m] = initial_values[m];
+  }
+}
+
+template<
+  typename T,
+  int M
+> void shift_line_buffer(
+  T line_buffer[M],
+  T new_value
+) {
+  for (int m = M - 1; m > 0; m--) {
+    line_buffer[m] = line_buffer[m - 1];
+  }
+  line_buffer[0] = new_value;
+}
 //----------------------------------------------------------
 // Perform Convolution Layer
 //----------------------------------------------------------
@@ -63,21 +88,38 @@ void conv(
   const bit weight[M][N][F][F]
 ) {
   #pragma HLS INLINE off
-  #pragma HLS array_reshape variable=weight complete dim=1
-  #pragma HLS array_reshape variable=input complete dim=1
 
-  // Cyclic partitions on weights and inputs for rows and columns
-  #pragma HLS partition variable=weight factor=3 dim=3
-  #pragma HLS partition variable=weight factor=3 dim=4
-  #pragma HLS partition variable=input factor=3 dim=2
-  #pragma HLS partition variable=input factor=3 dim=3
+  bit input_slice[M][F][F];
 
-  #pragma HLS partition variable=output complete dim=1
-  #pragma HLS partition variable=weight complete dim=2
-  
+    // Adding BRAMs for rows and columns using cyclic partitioning
+  #pragma HLS array_partition variable = weight complete dim = 4
+  #pragma HLS array_partition variable = weight complete dim = 3
+  #pragma HLS array_partition variable = weight complete dim = 2
+  #pragma HLS array_reshape variable = weight complete dim = 1
+
+  #pragma HLS array_partition variable = input_slice complete dim = 3
+  #pragma HLS array_partition variable = input_slice complete dim = 2
+  #pragma HLS array_reshape variable = input_slice complete dim = 1
+
+  #pragma HLS array_reshape variable = input complete dim = 1
+
+  // Adding BRAMs for the N dimension (output features)
+  #pragma HLS array_partition variable = output complete dim = 1
 
   int num_accum = F * F * M;
-  for (int x = 0; x < I - F + 1; x++) {
+
+
+  for (int x = 0; x < I - F + 1; x++)
+  {
+    for (int c = 0; c < F; c++) {
+      for (int r = 0; r < F; r++) {
+        for (int m = 0; m < M; m++) {
+          #pragma HLS unroll
+          input_slice[m][r][c] = input[m][r][x + c];
+        }
+      }
+    }
+
     for (int y = 0; y < I - F + 1; y++) {
       for (int n = 0; n < N; n++) {
         #pragma HLS pipeline
@@ -87,7 +129,7 @@ void conv(
         for (int c = 0; c < F; c++) {
           for (int r = 0; r < F; r++) {
             for (int m = 0; m < M; m++) {
-              accum += input[m][y + r][x + c] == weight[m][n][r][c];
+              accum += input_slice[m][r][c] == weight[m][n][r][c];
             }
           }
         }
@@ -95,6 +137,26 @@ void conv(
         accum = (accum << 1) - num_accum;
         output[n][y][x] = accum > threshold[n] ? 1 : 0;
       }
+
+      // Shift input slice left by one column
+      for (int r = 0; r < F - 1; r++) {
+        #pragma HLS unroll
+        for (int c = 0; c < F; c++) {
+          #pragma HLS unroll
+          for (int m = 0; m < M; m++) {
+            #pragma HLS unroll
+            input_slice[m][r][c] = input_slice[m][r + 1][c];
+          }
+        }
+      }
+      
+      // Load new column into input slice
+      for (int c = 0; c < F; c++) {
+        for (int m = 0; m < M; m++) {
+          #pragma HLS unroll
+          input_slice[m][F - 1][c] = input[m][y + F][x + c];
+        }
+      }   
     }
   }
 }
