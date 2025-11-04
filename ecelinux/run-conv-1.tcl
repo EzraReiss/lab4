@@ -4,20 +4,20 @@
 # @brief: A Tcl script for synthesizing the baseline digit recongnition design.
 
 # Project name
-set hls_prj bnn.prj
+set hls_prj conv-1.prj
 
 # Open/reset the project
 open_project ${hls_prj} -reset
 
 # Top function of the design is "dut"
-set_top dut
+set_top conv_layer_1
 
 # Add design and testbench files
 add_files bnn.cpp -cflags "-std=c++11"
 add_files -tb bnn_test.cpp -cflags "-std=c++11"
 add_files -tb data
 
-open_solution "fpga-ready-1"
+open_solution "conv-1-resource-light-v5"
 # Use Zynq device
 set_part {xc7z020clg484-1}
 
@@ -29,9 +29,9 @@ create_clock -period 10
 ############################################
 
 # Simulate the C++ design
-csim_design -O
+# csim_design -O
 # Synthesize the design
 csynth_design
 # Co-simulate the design
-cosim_design
+# cosim_design
 exit

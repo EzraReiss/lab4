@@ -9,6 +9,7 @@
 #include "model.h"
 #include "typedefs.h"
 
+#include <assert.h>
 typedef ap_uint<32> HLS_SIZE_T;
 #include "hls/hls_video_mem.h"
 
@@ -64,90 +65,114 @@ void initialize_padded_memory(bit input[M][I][I]) {
 //              N - number of output fmaps
 //              I - width of input fmaps
 //              weight - layer weights
+//              T - tile size for the output features
 // @param[out] : output - output fmaps
-template <int M, int N, int I>
+template <int M, int N, int I, int T>
 void conv(
   bit input[M][I][I], 
   bit output[N][I - F + 1][I - F + 1],
   const bit8_t threshold[N], 
   const bit weight[M][N][F][F]
 ) {
-  #pragma HLS INLINE off
+  #pragma HLS inline off
 
   bit input_slice[M][F][F];
 
-    // Adding BRAMs for rows and columns using cyclic partitioning
-  #pragma HLS array_partition variable = weight complete dim = 4
-  #pragma HLS array_partition variable = weight complete dim = 3
-  #pragma HLS array_partition variable = weight complete dim = 2
+  // Adding BRAMs for rows and columns using cyclic partitioning
+  // #pragma HLS array_partition variable = weight complete dim = 4
+  // #pragma HLS array_partition variable = weight complete dim = 3
+  // #pragma HLS array_partition variable = weight complete dim = 2
   #pragma HLS array_reshape variable = weight complete dim = 1
-
   #pragma HLS array_reshape variable = input complete dim = 1
 
   // Adding BRAMs for the N dimension (output features)
-  #pragma HLS array_partition variable = output complete dim = 1
+  // #pragma HLS array_partition variable = output complete dim = 1
 
   int num_accum = F * F * M;
 
   hls::Window<F, F, ap_uint<M>> window;
-  hls::LineBuffer<F - 1, I, ap_uint<M>> linebuf;
+  hls::LineBuffer<F, I, ap_uint<M>> linebuf;
 
+  // #pragma HLS array_partition variable = linebuf complete dim = 0
+  // #pragma HLS array_partition variable = window complete dim = 0
+  // #pragma HLS array_partition variable = threshold complete dim = 1
   // fill linebuf with first F rows form input
   initialize_linebuf:
-  for (int x = 0; x < F; x++) {
-    for (int y = 0; y < I; y++) {
+  for (int x = 0; x < I; x++) {
+    for (int y = 0; y < F; y++) {
       #pragma HLS pipeline
+      linebuf.shift_pixels_up(x);
+
       ap_uint<M> pixel_val;
       for (int m = 0; m < M; m++) {
         pixel_val[m] = input[m][y][x];
       }
-      linebuf.shift_pixels_up(y);
-      linebuf.insert_bottom_row(pixel_val, y);
+      
+      linebuf.insert_bottom_row(pixel_val, x);
     }
   }
 
   // fill window with the first FxF pixels from linebuf
   initialize_window:
-  for (int x = 0; x < F; x++) { 
+  for (int y = 0; y < F; y++) { 
     #pragma HLS pipeline
-    for (int y = 0; y < F; y++) {
-      window.insert_pixel(
-        linebuf.getval(x, y), 
-        x, 
-        y
-      );
+    for (int x = 0; x < F; x++) {
+      window.insert_pixel(linebuf.getval(x, y), x, y);
     }
   }
-
-  for (int x = 0; x < I - F + 1; x++) {
-    for (int y = 0; y < I - F + 1; y++) {
-      for (int n = 0; n < N; n++) {
-        #pragma HLS pipeline
-
-        bit16_t accum = 0;
-
-        for (int c = 0; c < F; c++) {
-          for (int r = 0; r < F; r++) {
-            for (int m = 0; m < M; m++) {
-              accum += window.getval(x, y, m) == weight[m][n][c][r];
+  OUTPUT_LOOP:
+  for (int y = 0; y < I - F + 1; y++) {
+    for (int x = 0; x < I - F + 1; x++) {
+      if (T == 1) {
+        #pragma HLS pipeline II=1
+      } 
+      OUTPUT_FEATURES:
+      for (int nt = 1; nt <= T; nt++) {
+        #pragma HLS pipeline II=1
+        int lower_bound = (nt-1) * (N / T); //Tx tile over N since resource util was high
+        for (int ntt = 0; ntt < N/T; ntt++) {
+          bit16_t accum = 0;
+          int n = lower_bound + ntt;
+          for (int c = 0; c < F; c++) {
+            for (int r = 0; r < F; r++) {
+              ap_uint<M> pixel = window.getval(r, c);
+              for (int m = 0; m < M; m++) {
+                accum += pixel[m] == weight[m][n][r][c];
+              }
             }
           }
-        }
 
-        accum = (accum << 1) - num_accum;
-        output[n][y][x] = accum > threshold[n] ? 1 : 0;
+          accum = (accum << 1) - num_accum;
+          output[n][y][x] = accum > threshold[n] ? 1 : 0;
+        }
       }
       
       window.shift_pixels_left();
+      for (int r = 0; r < F; r++) {
+        window.insert_pixel(linebuf.getval(r, x + F), r, F - 1);
+      }
+    }
+    
+    for (int x = 0; x < I; x++) {
+      #pragma HLS pipeline
+      linebuf.shift_pixels_up(x);
+
+      ap_uint<M> pixel_val;
+      for (int m = 0; m < M; m++) {
+        pixel_val[m] = input[m][y + F][x];
+      }
+
+      linebuf.insert_bottom_row(pixel_val, x);
+    }
+    
+    for (int yy = 0; yy < F; yy++) {
+      #pragma HLS pipeline
       for (int xx = 0; xx < F; xx++) {
-        window.insert_pixel(
-          linebuf.getval(xx, y + F), 
-          xx, 
-          F - 1
-        );
+        window.insert_pixel(linebuf.getval(xx, yy), xx, yy);
       }
     }
   }
+
 }
 
 //----------------------------------------------------------
@@ -161,8 +186,8 @@ template <int M, int I>
 void max_pool(bit input[M][I][I], bit output[M][I / 2][I / 2]) {
   #pragma HLS INLINE off
 
-  #pragma HLS array_reshape variable = input complete dim = 1
-  #pragma HLS array_reshape variable = output complete dim = 1
+  #pragma HLS array_reshape variable=input complete dim = 1
+  #pragma HLS array_reshape variable=output complete dim = 1
 
   for (int x = 0; x < I / 2; x++) {
     for (int y = 0; y < I / 2; y++) {
@@ -216,7 +241,7 @@ void flatten(bit input[O_CHANNEL2][O_WIDTH][O_WIDTH], bit output[I_UNITS1]) {
 // @param[out] : output - output fmaps
 template <int M> 
 void sign(bit16_t input[M], bit output[M]) {
-  #pragma HLS INLINE off
+  // #pragma HLS INLINE off
 
   for (int m = 0; m < M; m++) {
     output[m] = (input[m] > 0) ? 1 : 0;
@@ -229,7 +254,7 @@ void sign(bit16_t input[M], bit output[M]) {
 // @param[in] : input - input channels
 // @param[out] : output - argmax of the inputs
 bit4_t argmax(bit16_t input[NUM_DIGITS]) {
-  #pragma HLS INLINE off
+  // #pragma HLS INLINE off
   bit16_t max = input[0];
   bit4_t max_id = 0;
   for (int i = 1; i < NUM_DIGITS; i++) {
@@ -252,17 +277,18 @@ bit4_t argmax(bit16_t input[NUM_DIGITS]) {
 template <int M, int N>
 void dense(bit input[M], bit16_t output[N], const bit weight[M][N]) {
   #pragma HLS INLINE off
-  // Partition over input and weight for higher parallelism
-  // Don't do complete since M and N can be large
   #pragma HLS array_reshape variable=input complete dim=1
   #pragma HLS array_reshape variable=weight complete dim=1
+  // #pragma HLS array_partition variable=output complete dim=1
+  // #pragma HLS array_partition variable=weight complete dim=2
+  // Partition over input and weight for higher parallelism
+  // Don't do complete since M and N can be large
 
   for (int n = 0; n < N; n++) {
     #pragma HLS pipeline
-  
     bit16_t accum = 0;
     for (int m = 0; m < M; m++) {
-      #pragma HLS unroll
+      #pragma HLS unroll 
       accum += input[m] == weight[m][n]; // XNOR
     }
     output[n] = (accum << 1) - M;

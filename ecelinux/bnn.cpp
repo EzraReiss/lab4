@@ -91,7 +91,8 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
   conv<
     I_CHANNEL1,               // M
     O_CHANNEL1,               // N
-    I_WIDTH1 + F_PAD          // I
+    I_WIDTH1 + F_PAD,         // I
+    1                         // T
   >(
     input_padded,             // input[M][I][I]
     conv1,                    // output[N][I - F + 1][I - F + 1]
@@ -122,7 +123,8 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
   conv<
     O_CHANNEL1,               // M
     O_CHANNEL2,               // N
-    I_WIDTH2 + F_PAD          // I
+    I_WIDTH2 + F_PAD,         // I
+    4                         // T
   >(
     conv1_pooled_padded,      // input[M][I][I]
     conv2,                    // output[N][I - F + 1][I - F + 1] 
@@ -178,4 +180,53 @@ bit32_t bnn_xcel(bit input[1][I_WIDTH1][I_WIDTH1]) {
   output = argmax(dense2);
 
   return output;
+}
+
+
+void dense_layer_2(
+  bit input[I_UNITS1], 
+  bit16_t output[I_UNITS2]
+) {
+  dense<
+    I_UNITS1,                 // M  
+    I_UNITS2                  // N 
+  >(
+    input,                    // input[M]
+    output,                   // output[N]
+    w_fc1                     // weights[M][N]
+  );
+}
+
+void conv_layer_2(
+  bit input[O_CHANNEL1][I_WIDTH2 + F_PAD][I_WIDTH2 + F_PAD], 
+  bit output[O_CHANNEL2][I_WIDTH2 + F_PAD - F + 1][I_WIDTH2 + F_PAD - F + 1]
+) {
+  conv<
+    O_CHANNEL1,               // M
+    O_CHANNEL2,               // N
+    I_WIDTH2 + F_PAD,         // I
+    4
+  >(
+    input,                    // input[M][I][I]
+    output,                   // output[N][I - F + 1][I - F + 1]
+    threshold_conv2,          // threshold[N]
+    w_conv2                   // weights[M][N][F][F] 
+  );
+}
+
+void conv_layer_1(
+  bit input[1][I_WIDTH1 + F_PAD][I_WIDTH1 + F_PAD], 
+  bit output[O_CHANNEL1][I_WIDTH1 + F_PAD - F + 1][I_WIDTH1 + F_PAD - F + 1]
+) {
+  conv<
+    I_CHANNEL1,               // M
+    O_CHANNEL1,               // N
+    I_WIDTH1 + F_PAD,         // I
+    1                         // T
+  >(
+    input,                    // input[M][I][I]
+    output,                   // output[N][I - F + 1][I - F + 1]
+    threshold_conv1,          // threshold[N] 
+    w_conv1                   // weights[M][N][F][F]
+  );
 }
