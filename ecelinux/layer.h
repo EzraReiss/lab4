@@ -223,13 +223,29 @@ void max_pool(bit input[M][I][I], bit output[M][I / 2][I / 2]) {
 void flatten(bit input[O_CHANNEL2][O_WIDTH][O_WIDTH], bit output[I_UNITS1]) {
   #pragma HLS INLINE off
 
-  for (int c = 0; c < O_CHANNEL2; c++) {
-    for (int y = 0; y < O_WIDTH; y++) {
-      for (int x = 0; x < O_WIDTH; x++) {
-        int o_index = c + (x + y * O_WIDTH) * O_CHANNEL2;
-        output[o_index] = input[c][y][x];
-      }
-    }
+  #pragma HLS array_reshape variable=input complete dim=1
+  #pragma HLS array_partition variable=input complete dim=2
+  #pragma HLS array_partition variable=input complete dim=3
+  #pragma HLS array_partition variable=output complete dim=1 //already partitioned in dense?
+
+
+  // for (int c = 0; c < O_CHANNEL2; c++) {
+  //   #pragma HLS pipeline
+  //   for (int y = 0; y < O_WIDTH; y++) {
+  //     for (int x = 0; x < O_WIDTH; x++) {
+  //       int o_index = c + (x + y * O_WIDTH) * O_CHANNEL2;
+  //       output[o_index] = input[c][y][x];
+  //     }
+  //   }
+  // }
+
+  for (int i = 0; i < I_UNITS1; ++i) {
+    #pragma HLS unroll 
+    //sams schitzo implementation
+    int a = (i & 0b001100000) >> 5;
+    int b = (i & 0b110000000) >> 7;
+    int c = (i & 0b000011111) >> 0;
+    output[i] = input[c][b][a];
   }
 }
 

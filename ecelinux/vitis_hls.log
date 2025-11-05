@@ -1,0 +1,56 @@
+
+****** Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2023.2 (64-bit)
+  **** SW Build 4023990 on Oct 11 2023
+  **** IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+  **** SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source /opt/xilinx/Vitis_HLS/2023.2/scripts/vitis_hls/hls.tcl -notrace
+INFO: [HLS 200-10] Running '/opt/xilinx/Vitis_HLS/2023.2/bin/unwrapped/lnx64.o/vitis_hls'
+INFO: [HLS 200-10] For user 'er495' on host 'en-ec-brg-zhang-xcel.coecis.cornell.edu' (Linux_x86_64 version 5.14.0-162.23.1.el9_1.x86_64) on Mon Nov 03 00:04:36 EST 2025
+INFO: [HLS 200-10] On os "Red Hat Enterprise Linux 9.1 (Plow)"
+INFO: [HLS 200-10] In directory '/home/er495/lab4/ecelinux'
+INFO: [HLS 200-2053] The vitis_hls executable is being deprecated. Consider using vitis-run --mode hls --tcl
+Sourcing Tcl script 'run.tcl'
+INFO: [HLS 200-1510] Running: open_project bnn.prj -reset 
+INFO: [HLS 200-10] Opening and resetting project '/home/er495/lab4/ecelinux/bnn.prj'.
+INFO: [HLS 200-1510] Running: set_top dut 
+INFO: [HLS 200-1510] Running: add_files bnn.cpp -cflags -std=c++11 
+INFO: [HLS 200-10] Adding design file 'bnn.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb bnn_test.cpp -cflags -std=c++11 
+INFO: [HLS 200-10] Adding test bench file 'bnn_test.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb data 
+INFO: [HLS 200-10] Adding test bench file 'data' to the project
+INFO: [HLS 200-1510] Running: open_solution solution1-linebuffer-1-dataflow 
+INFO: [HLS 200-10] Creating and opening solution '/home/er495/lab4/ecelinux/bnn.prj/solution1-linebuffer-1-dataflow'.
+INFO: [HLS 200-1505] Using default flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.xilinx.com/access/sources/dita/topic?Doc_Version=2023.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xc7z020clg484-1 
+INFO: [HLS 200-1611] Setting target device to 'xc7z020-clg484-1'
+INFO: [HLS 200-1510] Running: create_clock -period 10 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 10ns.
+INFO: [HLS 200-1510] Running: csim_design -O 
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [SIM 211-4] CSIM will launch GCC as the compiler.
+INFO: [HLS 200-2036] Building optimized C Simulation binaries
+   Compiling ../../../../bnn_test.cpp in release mode
+   Compiling ../../../../bnn.cpp in release mode
+In file included from ../../../../bnn.cpp:7:
+../../../../layer.h:13:10: fatal error: hls/hls_video_mem.h: No such file or directory
+ #include "hls/hls_video_mem.h"
+          ^~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [csim.mk:84: obj/bnn.o] Error 1
+ERROR: [SIM 211-100] 'csim_design' failed: compilation error(s).
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-111] Finished Command csim_design CPU user time: 1.74 seconds. CPU system time: 0.26 seconds. Elapsed time: 2.09 seconds; current allocated memory: 1.000 MB.
+4
+    while executing
+"source run.tcl"
+    ("uplevel" body line 1)
+    invoked from within
+"uplevel \#0 [list source $tclfile] "
+
+INFO: [HLS 200-112] Total CPU user time: 3.76 seconds. Total CPU system time: 0.49 seconds. Total elapsed time: 4.23 seconds; peak allocated memory: 283.250 MB.
+INFO: [Common 17-206] Exiting vitis_hls at Mon Nov  3 00:04:40 2025...

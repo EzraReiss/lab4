@@ -230,3 +230,13 @@ void conv_layer_1(
     w_conv1                   // weights[M][N][F][F]
   );
 }
+
+void flatten_layer(
+  bit input[O_CHANNEL2][O_WIDTH][O_WIDTH], 
+  bit output[I_UNITS1]
+) {
+  flatten(
+    input,                    // input[O_CHANNEL2][O_WIDTH][O_WIDTH]
+    output                    // output[I_UNITS1]
+  );
+}

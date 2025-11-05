@@ -4,13 +4,13 @@
 # @brief: A Tcl script for synthesizing the baseline digit recongnition design.
 
 # Project name
-set hls_prj bnn.prj
+set hls_prj flatten.prj
 
 # Open/reset the project
 open_project ${hls_prj} -reset
 
 # Top function of the design is "dut"
-set_top dut
+set_top flatten_layer
 
 # Add design and testbench files
 add_files bnn.cpp -cflags "-std=c++11"
